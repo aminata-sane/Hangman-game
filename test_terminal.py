@@ -49,7 +49,7 @@ def draw_button(x, y, width, height, text, default_color, hover_color, action=No
     window.blit(text_surface, text_rect)
 
 # Load words from a file
-# Завантажуємо слова з файлу
+# Download the words from file
 def load_words(words_file):
     if not os.path.exists(words_file):
         with open(words_file, "w", encoding="utf-8") as file:
@@ -60,13 +60,13 @@ def load_words(words_file):
         content = file.read().strip()
     levels = content.split("\n\n")
     
-    easy_words = levels[0].split("\n")  # Легкі слова
-    medium_words = levels[1].split("\n")  # Середні слова
+    easy_words = levels[0].split("\n")  
+    medium_words = levels[1].split("\n")  
     hard_words = levels[2].split("\n") 
     return easy_words, medium_words, hard_words
 
 def load_words_by_level():
-    easy_words, medium_words, hard_words = load_words("words.txt")  # Потрібно вказати правильний шлях до файлу
+    easy_words, medium_words, hard_words = load_words("words.txt")  
     
     if selected_level == "Easy":
         return easy_words
@@ -75,7 +75,8 @@ def load_words_by_level():
     elif selected_level == "Hard":
         return hard_words
     else:
-        return []  # Якщо рівень не вибраний, повертаємо порожній список
+        # If level isn't selected - return empty list
+        return []  
     
 # Choose words
 def choose_word(words):
@@ -209,11 +210,11 @@ def draw_hangman(screen, attempts_left):
 # Function for starting game
 def start_game():
     global selected_level, player_name, score
-    if selected_level is None:  # Якщо рівень не вибрано
-        print("Error: Level not selected!")  # Повідомлення про помилку
-        return  # Зупиняємо виконання функції, не починаємо гру
+    if selected_level is None: 
+        print("Error: Level not selected!")  
+        return 
     
-    # Якщо рівень вибрано, продовжуємо виконувати код для старту гри
+    # If level is selected
     print(f"Starting game with level: {selected_level}")
 
     words = load_words_by_level()

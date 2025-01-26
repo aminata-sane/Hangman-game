@@ -8,6 +8,7 @@ Gym
 Jazz
 Myth
 
+
 Grimoire
 microwave
 walkway
@@ -17,12 +18,12 @@ xylophone
 unknown
 rhythm
 
+
 Always be kind
 Tried and true
 My circle of friends
 I believe in you
-Read between the lines& C:/Users/daria/AppData/Local/Programs/Python/Python313/python.exe "d:/Daria/Downloads/La plateforme/курс logiciel/20.01.25-25.01.25/Hangman-game/test_code_copy.py"
 
 
-KOKO
-KOKO
+
+
