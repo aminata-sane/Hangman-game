@@ -213,8 +213,9 @@ def start_game():
 #--------------------------------------- Function to display end message
 def end_message(message, color):
     window.fill(WHITE)
-    font = pygame.font.Font(None, 72)
+    font = pygame.font.Font(None, 48)
     text = font.render(message, True, color)
+    text_rect = text.get_rect(center=(display_width // 2, display_height // 2))
     window.blit(text, (400 - text.get_width() // 2, 400 - text.get_height() // 2))
     pygame.display.update()
     pygame.time.wait(3000)

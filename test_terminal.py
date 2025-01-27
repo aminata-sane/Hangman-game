@@ -24,7 +24,7 @@ GREEN = (0, 255, 0)
 font = pygame.font.Font(None, 36)
 
 # Global variables
-player_name = "Player"
+player_name = ""
 selected_level = None
 difficulty_attempts = {"Light": 10, "Middle": 7, "Hard": 5}
 words_file = "words.txt"
@@ -49,7 +49,6 @@ def draw_button(x, y, width, height, text, default_color, hover_color, action=No
     window.blit(text_surface, text_rect)
 
 # Load words from a file
-# Download the words from file
 def load_words(words_file):
     if not os.path.exists(words_file):
         with open(words_file, "w", encoding="utf-8") as file:
@@ -77,7 +76,25 @@ def load_words_by_level():
     else:
         # If level isn't selected - return empty list
         return []  
-    
+
+def select_easy():
+    global selected_level
+    selected_level = "Easy"
+    print(f"Level selected: {selected_level}")
+    start_game()
+
+def select_medium():
+    global selected_level
+    selected_level = "Medium"
+    print(f"Level selected: {selected_level}")
+    start_game()
+
+def select_hard():
+    global selected_level
+    selected_level = "Hard"
+    print(f"Level selected: {selected_level}")
+    start_game()
+
 # Choose words
 def choose_word(words):
     return random.choice(words)
@@ -95,6 +112,7 @@ def main_menu():
         window.fill(WHITE)
 
         # Corrected button positions (using numbers for coordinates)
+        draw_button(300, 190, 200, 50, "Enter your name", GRAY, HIGHLIGHT, enter_name)
         draw_button(300, 250, 200, 50, "The level", GRAY, HIGHLIGHT, level_menu)
         draw_button(300, 320, 200, 50, "Play", GRAY, HIGHLIGHT, start_game)
         draw_button(300, 390, 200, 50, "Add new word", GRAY, HIGHLIGHT, add_word)
@@ -105,45 +123,68 @@ def main_menu():
             if event.type == pygame.QUIT:
                 running = False
         pygame.display.update()
-
-
 # ----------------------------------Enter Name-------------------------------------
 def enter_name():
     global player_name
     running = True
-    input_box = pygame.Rect(300, 400, 200, 50)
-    color = GRAY
+    input_box = pygame.Rect(300, 300, 200, 50)
+    color_inactive = pygame.Color('lightskyblue3')
+    color_active = pygame.Color('dodgerblue2')
+    color = color_inactive
     text = ""
+    active = False
+    font_input = pygame.font.Font(None, 36)
 
     while running:
         window.fill(WHITE)
         pygame.draw.rect(window, color, input_box)
-        draw_button(300, 500, 200, 50, "Confirm", GRAY, HIGHLIGHT, lambda: set_name(text))
-        draw_button(300, 570, 200, 50, "Back", GRAY, HIGHLIGHT, main_menu)
 
-        text_surface = font.render(text, True, BLACK)
-        window.blit(text_surface, (input_box.x + 5, input_box.y + 5))
-        input_box.w = max(200, text_surface.get_width() + 10)
+        draw_button(300, 500, 200, 50, "Confirm", GRAY, HIGHLIGHT, lambda: confirm_name(text))
+        draw_button(300, 570, 200, 50, "Back", GRAY, HIGHLIGHT, main_menu)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    set_name(text)
-                elif event.key == pygame.K_BACKSPACE:
-                    text = text[:-1]
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = True
                 else:
-                    text += event.unicode
-        pygame.display.update()
+                    active = False
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        player_name = text
+                        # back to main menu
+                        return  
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
 
-def set_name(name):
+        txt_surface = font_input.render(text, True, BLACK)
+        window.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+        pygame.draw.rect(window, color, input_box, 2)
+
+        pygame.display.flip()
+
+def confirm_name(name):
     global player_name
-    player_name = name.strip() if name.strip() else "Player"
-    print(f"Player name set to: {player_name}")
-    save_score(player_name, 0)
+    player_name = name
+    print(f"Player name confirmed: {player_name}")
     main_menu()
+
+# Sets the selected level and returns to main menu.
+# def set_level_and_exit(level, running_flag):
+#     global selected_level
+#     selected_level = level
+#     print(f"Level selected: {selected_level}")
+
+    if selected_level not in ["Easy", "Medium", "Hard"]:
+        print("Error: Invalid level selected.")
+        return
+    
+    # running_flag = False  # Це завершує цикл level_menu()
 
 # ----------------------------------------------------Level----------------------------------
 # function for choosing level
@@ -152,9 +193,9 @@ def level_menu():
     running = True
     while running:
         window.fill(WHITE)
-        draw_button(300, 200, 200, 50, "Easy", GRAY, HIGHLIGHT, lambda: set_level("Easy"))
-        draw_button(300, 270, 200, 50, "Medium", GRAY, HIGHLIGHT, lambda: set_level("Medium"))
-        draw_button(300, 340, 200, 50, "Hard", GRAY, HIGHLIGHT, lambda: set_level("Hard"))
+        draw_button(300, 200, 200, 50, "Easy", GRAY, HIGHLIGHT, select_easy)
+        draw_button(300, 270, 200, 50, "Medium", GRAY, HIGHLIGHT, select_medium)
+        draw_button(300, 340, 200, 50, "Hard", GRAY, HIGHLIGHT, select_hard)
         draw_button(300, 410, 200, 50, "Back", GRAY, HIGHLIGHT, main_menu)
 
         for event in pygame.event.get():
@@ -164,19 +205,9 @@ def level_menu():
 
         pygame.display.update()
 
-# Sets the selected level and returns to main menu.
-def set_level(level):
-    global selected_level
-    selected_level = level
-    print(f"Level selected: {selected_level}")
-    # end_message(f"Level selected: {selected_level}", BLACK)
-    # Перевіряємо чи вибрано правильний рівень
-    if selected_level not in ["Easy", "Medium", "Hard"]:
-        print("Error: Invalid level selected.")
-        return
-    # main_menu()
-    start_game()
-    
+        # if selected_level:
+        #     running = False
+        #     main_menu()
 
 # ------------------------------Starting game------------------------------------------------------------------
 # grafic of handman
@@ -221,7 +252,7 @@ def start_game():
     word = choose_word(words).upper()
     guessed = ["_" for _ in word]
     guessed_letters = set()
-    attempts_left = 7
+    attempts_left = 6
     score = 0
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -272,18 +303,21 @@ def start_game():
             score += 1
             # print(f"Congratulations, {player_name}! You Win!", GREEN)
             end_message(f"Congratulations, {player_name}! You Win!", GREEN)
+            selected_level = None
             return
 
         if attempts_left == 0:
             # print(f"Sorry, {player_name}. You Lose! The word was {word}", RED)
             end_message(f"Sorry, {player_name}. You Lose! The word was {word}", RED)
             save_score(player_name, score)
+            selected_level = None
             return
 #--------------------------------------- Function to display end message
 def end_message(message, color):
     window.fill(WHITE)
-    font = pygame.font.Font(None, 72)
+    font = pygame.font.Font(None, 40)
     text = font.render(message, True, color)
+    text_rect = text.get_rect(center=(display_width // 2, display_height // 2))
     window.blit(text, (400 - text.get_width() // 2, 400 - text.get_height() // 2))
     pygame.display.update()
     pygame.time.wait(3000)
@@ -306,18 +340,35 @@ def add_word():
 # function for saving the scores
 def score_list():
     try:
-        with open("scores.txt", "r", encoding="utf-8") as file:
+        with open(score_file, "r", encoding="utf-8") as file:
             scores = file.readlines()
-        if scores:
-            print("Score list:")
-            for score in scores:
-                print(score.strip())
-        else:
-            print("No scores available.")
     except FileNotFoundError:
-        print("Score file not found.")
+        scores = []
 
-# running = True
+    running = True
+    while running:
+        window.fill(WHITE)
+
+        # Відображаємо заголовок
+        font = pygame.font.Font(None, 50)
+        title = font.render("Score List", True, BLACK)
+        window.blit(title, (300, 50))
+
+        # Відображаємо список балів
+        font_small = pygame.font.Font(None, 36)
+        for i, line in enumerate(scores):
+            score_text = font_small.render(line.strip(), True, BLACK)
+            window.blit(score_text, (100, 100 + i * 40))
+
+        # Кнопка для повернення назад
+        draw_button(300, 700, 200, 50, "Back", GRAY, HIGHLIGHT, main_menu)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        pygame.display.update()
 
 # ------------------------------------Quit Game----------------------------------
 def quit_game():
